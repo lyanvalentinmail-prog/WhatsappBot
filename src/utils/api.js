@@ -14,6 +14,31 @@ import apiEndpoints from '../config/api.js';
 import { logger } from './logger.js';
 
 /**
+ * Traduce errores HTTP comunes (401/403/404) de las APIs de IA a un
+ * mensaje entendible, en vez de dejar pasar el genérico de axios
+ * ("Request failed with status code 404"). Un 404 en estas APIs casi
+ * siempre significa que el modelo configurado (ej: OPENAI_MODEL,
+ * GEMINI_MODEL, GROQ_MODEL) fue descontinuado por el proveedor.
+ */
+const describeHttpError = (service, modelEnvVar, model, err) => {
+    const status = err.response?.status;
+    if (status === 401 || status === 403) {
+        return new Error(`La API key de ${service} es inválida o no tiene permisos.`);
+    }
+    if (status === 404) {
+        return new Error(
+            `El modelo "${model}" de ${service} ya no existe o fue descontinuado ` +
+                `(HTTP 404). Revisá los modelos vigentes del proveedor y actualizá ` +
+                `${modelEnvVar} en tu .env.`
+        );
+    }
+    if (status === 429) {
+        return new Error(`${service} está limitando las solicitudes (demasiados pedidos). Probá de nuevo en un rato.`);
+    }
+    return err;
+};
+
+/**
  * Chatea con OpenAI (ChatGPT).
  * @param {string} prompt
  * @returns {Promise<string>}
@@ -21,22 +46,26 @@ import { logger } from './logger.js';
 export const askOpenAI = async (prompt) => {
     if (!config.ai.openaiKey) throw new Error('OPENAI_API_KEY no configurada en .env');
 
-    const { data } = await axios.post(
-        apiEndpoints.openai.chat,
-        {
-            model: config.ai.openaiModel,
-            messages: [{ role: 'user', content: prompt }]
-        },
-        {
-            headers: {
-                Authorization: `Bearer ${config.ai.openaiKey}`,
-                'Content-Type': 'application/json'
+    try {
+        const { data } = await axios.post(
+            apiEndpoints.openai.chat,
+            {
+                model: config.ai.openaiModel,
+                messages: [{ role: 'user', content: prompt }]
             },
-            timeout: 60_000
-        }
-    );
+            {
+                headers: {
+                    Authorization: `Bearer ${config.ai.openaiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                timeout: 60_000
+            }
+        );
 
-    return data.choices?.[0]?.message?.content?.trim() || 'No se obtuvo respuesta.';
+        return data.choices?.[0]?.message?.content?.trim() || 'No se obtuvo respuesta.';
+    } catch (err) {
+        throw describeHttpError('OpenAI', 'OPENAI_MODEL', config.ai.openaiModel, err);
+    }
 };
 
 /**
@@ -47,26 +76,30 @@ export const askOpenAI = async (prompt) => {
 export const generateImageOpenAI = async (prompt) => {
     if (!config.ai.openaiKey) throw new Error('OPENAI_API_KEY no configurada en .env');
 
-    const { data } = await axios.post(
-        apiEndpoints.openai.image,
-        {
-            model: config.ai.openaiImageModel,
-            prompt,
-            n: 1,
-            size: '1024x1024'
-        },
-        {
-            headers: {
-                Authorization: `Bearer ${config.ai.openaiKey}`,
-                'Content-Type': 'application/json'
+    try {
+        const { data } = await axios.post(
+            apiEndpoints.openai.image,
+            {
+                model: config.ai.openaiImageModel,
+                prompt,
+                n: 1,
+                size: '1024x1024'
             },
-            timeout: 120_000
-        }
-    );
+            {
+                headers: {
+                    Authorization: `Bearer ${config.ai.openaiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                timeout: 120_000
+            }
+        );
 
-    const item = data.data?.[0];
-    if (!item) throw new Error('No se pudo generar la imagen.');
-    return item.url || `data:image/png;base64,${item.b64_json}`;
+        const item = data.data?.[0];
+        if (!item) throw new Error('No se pudo generar la imagen.');
+        return item.url || `data:image/png;base64,${item.b64_json}`;
+    } catch (err) {
+        throw describeHttpError('OpenAI', 'OPENAI_IMAGE_MODEL', config.ai.openaiImageModel, err);
+    }
 };
 
 /**
@@ -77,20 +110,25 @@ export const generateImageOpenAI = async (prompt) => {
 export const askGemini = async (prompt) => {
     if (!config.ai.geminiKey) throw new Error('GEMINI_API_KEY no configurada en .env');
 
-    const url = apiEndpoints.gemini.generate(config.ai.geminiModel);
-    const { data } = await axios.post(
-        `${url}?key=${config.ai.geminiKey}`,
-        {
-            contents: [{ parts: [{ text: prompt }] }]
-        },
-        { headers: { 'Content-Type': 'application/json' }, timeout: 60_000 }
-    );
+    try {
+        const url = apiEndpoints.gemini.generate(config.ai.geminiModel);
+        const { data } = await axios.post(
+            `${url}?key=${config.ai.geminiKey}`,
+            {
+                contents: [{ parts: [{ text: prompt }] }]
+            },
+            { headers: { 'Content-Type': 'application/json' }, timeout: 60_000 }
+        );
 
-    return (
-        data.candidates?.[0]?.content?.parts?.map((p) => p.text).join('\n').trim() ||
-        'No se obtuvo respuesta.'
-    );
+        return (
+            data.candidates?.[0]?.content?.parts?.map((p) => p.text).join('\n').trim() ||
+            'No se obtuvo respuesta.'
+        );
+    } catch (err) {
+        throw describeHttpError('Gemini', 'GEMINI_MODEL', config.ai.geminiModel, err);
+    }
 };
+
 
 /**
  * Genera una imagen con un modelo de Hugging Face (Inference API), a
@@ -185,22 +223,26 @@ export const generateImageHuggingFace = async (prompt, negativePrompt = '') => {
 export const askGroq = async (prompt) => {
     if (!config.ai.groqKey) throw new Error('GROQ_API_KEY no configurada en .env');
 
-    const { data } = await axios.post(
-        apiEndpoints.groq.chat,
-        {
-            model: config.ai.groqModel,
-            messages: [{ role: 'user', content: prompt }]
-        },
-        {
-            headers: {
-                Authorization: `Bearer ${config.ai.groqKey}`,
-                'Content-Type': 'application/json'
+    try {
+        const { data } = await axios.post(
+            apiEndpoints.groq.chat,
+            {
+                model: config.ai.groqModel,
+                messages: [{ role: 'user', content: prompt }]
             },
-            timeout: 60_000
-        }
-    );
+            {
+                headers: {
+                    Authorization: `Bearer ${config.ai.groqKey}`,
+                    'Content-Type': 'application/json'
+                },
+                timeout: 60_000
+            }
+        );
 
-    return data.choices?.[0]?.message?.content?.trim() || 'No se obtuvo respuesta.';
+        return data.choices?.[0]?.message?.content?.trim() || 'No se obtuvo respuesta.';
+    } catch (err) {
+        throw describeHttpError('Groq', 'GROQ_MODEL', config.ai.groqModel, err);
+    }
 };
 
 /**

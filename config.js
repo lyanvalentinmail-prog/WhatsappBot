@@ -44,10 +44,10 @@ export const config = {
         geminiKey: process.env.GEMINI_API_KEY || '',
         groqKey: process.env.GROQ_API_KEY || '',
         huggingfaceKey: process.env.HUGGINGFACE_API_KEY || '',
-        openaiModel: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-        openaiImageModel: process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1',
-        geminiModel: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
-        groqModel: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
+        openaiModel: process.env.OPENAI_MODEL || 'gpt-6-luna',
+        openaiImageModel: process.env.OPENAI_IMAGE_MODEL || 'gpt-image-2.5-flare',
+        geminiModel: process.env.GEMINI_MODEL || 'gemini-3.8-flash',
+        groqModel: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
         huggingfaceImageModel:
             process.env.HUGGINGFACE_IMAGE_MODEL || 'stabilityai/stable-diffusion-3-medium-diffusers'
     },
