@@ -31,6 +31,7 @@ bot-whatsapp/
 │   │   ├── general/
 │   │   ├── grupo/
 │   │   ├── anime/
+│   │   ├── ia/                   # .image (Perchance, sin API key)
 │   │   ├── juegos/
 │   │   ├── herramientas/
 │   │   └── owner/
@@ -327,6 +328,34 @@ Para agregar un proveedor nuevo (Claude, DeepSeek, Mistral, OpenRouter...):
 1. Agrega su endpoint en `src/config/api.js`.
 2. Agrega una función `askNombre()` en `src/utils/api.js`.
 3. Suma un comando en `src/plugins/ai.js` usando el mismo patrón.
+
+### 🖼️ `.image` — generación de imágenes con Perchance (sin API key)
+
+`.image <descripción> | <estilo>` genera una imagen usando el generador
+de IA de [Perchance](https://perchance.org/ai-text-to-image-generator),
+sin necesitar ninguna API key propia. No requiere configuración en `.env`.
+
+```
+.image un gato astronauta pintando un cuadro | painted-anime
+.image un paisaje de montaña          (usa el estilo "No style" por defecto)
+.image estilos                        (lista los Art styles disponibles)
+```
+
+Art styles disponibles (`src/config/perchanceStyles.js`): **No style**,
+**Painted Anime**, Cinematic, Traditional Japanese, Casual Photo,
+Digital Painting y Concept Art. Se pueden escribir en minúsculas, con o
+sin tildes/guiones (ej: `anime`, `Painted Anime` y `painted-anime` son
+equivalentes).
+
+⚠️ **Importante:** Perchance no tiene una API pública ni oficial. Este
+comando funciona reconstruyendo (con simples pedidos HTTP vía `axios`,
+**sin usar ningún navegador automatizado**) el mismo flujo de dos pasos
+que usa la propia web para generar imágenes. Al ser una integración no
+documentada, Perchance podría cambiar su sitio en cualquier momento y
+romper el comando sin aviso — si eso pasa, `.image` responde con un
+error claro (reacciona `❌️` y explica el problema) en vez de colgarse.
+Toda la lógica vive aislada en `src/utils/perchance.js` para poder
+ajustarla fácilmente si el servicio cambia.
 
 ---
 

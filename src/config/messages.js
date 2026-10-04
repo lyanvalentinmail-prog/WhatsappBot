@@ -69,7 +69,23 @@ export const messages = {
     stickerError: `${symbols.error} No se pudo crear el sticker. Asegúrate de responder a una imagen o video corto.`,
     downloadNotConfigured: `⚠️ Esta función necesita que configures DOWNLOAD_API_URL en tu archivo .env.`,
     aiNotConfigured: (service) =>
-        `⚠️ Configura la variable ${service} en tu archivo .env para usar este comando.`
+        `⚠️ Configura la variable ${service} en tu archivo .env para usar este comando.`,
+
+    // .image (Perchance)
+    imageUsage: (prefix, stylesList) =>
+        `${symbols.error} Describe la imagen a generar.\n` +
+        `Uso: \`${prefix}image <descripción> | <estilo>\`\n` +
+        `Ej: \`${prefix}image un gato astronauta | painted-anime\`\n\n` +
+        `*Estilos disponibles (Art style):*\n${stylesList}\n\n` +
+        `Si no indicas estilo, se usa *No style*.`,
+    imageUnknownStyle: (prefix, style, stylesList) =>
+        `${symbols.error} No reconozco el estilo *"${style}"*.\n\n` +
+        `*Estilos disponibles (Art style):*\n${stylesList}\n\n` +
+        `Ej: \`${prefix}image un gato astronauta | painted-anime\``,
+    imageError: (err) =>
+        `${symbols.error} No se pudo generar la imagen con Perchance.\n` +
+        `> ${err}\n\n` +
+        `_Es una integración no oficial: si Perchance cambió su sitio, puede dejar de funcionar hasta actualizarla._`
 };
 
 export default messages;
