@@ -360,6 +360,7 @@ el resto del bot no se entera del cambio.
 | El bot no responde en grupos | Verifica que el número usado en `DEVELOPER_NUMBER`/owner sea correcto y que el bot no esté en `BOT_MODE=private` |
 | Error de permisos en Termux | Ejecuta `termux-setup-storage` y vuelve a intentar |
 | El proceso se cierra solo | Revisa `logs/` para ver el error exacto; los errores de comandos ya no cierran el bot, pero errores de conexión se reintentan automáticamente |
+| El bot conecta pero no responde a ningún comando | Si vinculaste el bot con **tu propio número** (lo más común en Termux) y le escribes desde ese mismo número (a ti mismo o en un grupo), el bot SÍ te responde: estos mensajes se procesan igual que cualquier otro. Revisa que el prefijo que escribes coincida con `BOT_PREFIX` del `.env`, y activa `DEBUG=true` para ver en consola/`logs/` cada mensaje recibido y si el comando fue encontrado |
 
 ---
 

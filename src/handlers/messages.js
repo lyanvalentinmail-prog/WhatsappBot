@@ -29,9 +29,18 @@ const getGroupAdmins = (groupMetadata) =>
 const buildContext = async (sock, msg) => {
     const from = msg.key.remoteJid;
     const isGroup = from.endsWith('@g.us');
-    const sender = isGroup ? msg.key.participant : from;
-    const senderNumber = normalizeNumber(jidToNumber(sender));
     const botJid = sock.user?.id?.split(':')[0];
+
+    // IMPORTANTE: si vinculaste el bot con tu propio número de WhatsApp
+    // (lo habitual en Termux), los mensajes que vos mismo escribís llegan
+    // con fromMe=true. En privado, "from" sería el chat (la otra persona),
+    // NO quien escribió: en ese caso el remitente real sos vos (el bot).
+    const sender = isGroup
+        ? msg.key.participant || `${botJid}@s.whatsapp.net`
+        : msg.key.fromMe
+          ? `${botJid}@s.whatsapp.net`
+          : from;
+    const senderNumber = normalizeNumber(jidToNumber(sender));
 
     let groupMetadata = null;
     let groupAdmins = [];
@@ -103,10 +112,15 @@ const parseCommand = (text) => {
  */
 export const handleMessage = async (sock, msg) => {
     try {
-        if (!msg.message || msg.key.fromMe) return;
+        if (!msg.message) return;
         if (msg.key.remoteJid === 'status@broadcast') return;
 
+        // Nota: NO se ignoran los mensajes "fromMe". Cuando el bot está
+        // vinculado con tu propio número de WhatsApp (lo normal en Termux),
+        // los comandos que vos mismo escribís también llegan con
+        // fromMe=true, y deben poder ejecutarse (sos el owner).
         const ctx = await buildContext(sock, msg);
+        logger.debug(`Mensaje recibido de ${ctx.sender} en ${ctx.from}: "${ctx.text}"`);
         if (!ctx.text) return;
 
         // Usuario bloqueado: se ignora silenciosamente
@@ -118,7 +132,10 @@ export const handleMessage = async (sock, msg) => {
         if (!parsed || !parsed.cmdName) return;
 
         const command = commandHandler.find(parsed.cmdName);
-        if (!command) return; // No se responde nada si el comando no existe (evita spam)
+        if (!command) {
+            logger.debug(`Comando no encontrado: "${parsed.cmdName}" (prefijo configurado: "${config.prefix}")`);
+            return; // No se responde nada si el comando no existe (evita spam)
+        }
 
         ctx.args = parsed.args;
         ctx.prefix = parsed.usedPrefix || config.prefix;

@@ -56,10 +56,12 @@ export const logger = {
         writeToFile('error', `${msg}${extra}`);
     },
     debug: (msg) => {
+        // Solo se registra si se activa DEBUG=true en el .env, ya que puede
+        // incluir contenido de mensajes de los usuarios (privacidad).
         if (process.env.DEBUG === 'true') {
             console.log(chalk.gray(`[${timestamp()}] • `) + msg);
+            writeToFile('debug', msg);
         }
-        writeToFile('debug', msg);
     }
 };
 
