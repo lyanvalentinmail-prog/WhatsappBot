@@ -3,26 +3,28 @@
  * -----------------------------------------------------------------------
  * .image <descripción> | <estilo>
  *
- * Genera una imagen con el generador de IA de Perchance
- * (https://perchance.org/ai-text-to-image-generator), eligiendo
- * opcionalmente un "Art style" (ej: "No style", "Painted anime").
+ * Genera una imagen con IA (modelos de Hugging Face, vía
+ * src/utils/api.js -> generateImageHuggingFace), eligiendo opcionalmente
+ * un "Art style" (ej: "No style", "Painted anime").
  *
- * Es una integración NO OFICIAL (Perchance no tiene API pública): la
- * lógica real vive en src/utils/perchance.js, sin usar ningún navegador
- * automatizado (solo pedidos HTTP comunes vía axios).
+ * Requiere una cuenta gratuita (sin tarjeta) en https://huggingface.co y
+ * un token en HUGGINGFACE_API_KEY (.env). Antes se intentó usar Perchance
+ * directamente, pero agregó protección anti-bot (Cloudflare Turnstile)
+ * que exige resolver un captcha con navegador real, incompatible con
+ * este proyecto (sin Selenium/Puppeteer/Playwright).
  * -----------------------------------------------------------------------
  */
 
 import messages from '../../config/messages.js';
 import { menuConfig } from '../../config/menu.js';
-import { generatePerchanceImage } from '../../utils/perchance.js';
-import { findStyle, listStylesText, defaultStyleKey, perchanceStyles } from '../../config/perchanceStyles.js';
+import { generateImageHuggingFace } from '../../utils/api.js';
+import { findStyle, listStylesText, defaultStyleKey, imageStyles } from '../../config/imageStyles.js';
 
 export default {
     name: 'image',
-    aliases: ['perchance', 'imgia'],
+    aliases: ['imgia', 'sdimage'],
     category: 'ia',
-    description: 'Genera una imagen con IA (Perchance) eligiendo un Art style',
+    description: 'Genera una imagen con IA (Hugging Face) eligiendo un Art style',
     usage: '.image un gato astronauta | painted-anime',
     args: 'texto',
     groupOnly: false,
@@ -46,7 +48,7 @@ export default {
         }
 
         let styleKey = defaultStyleKey;
-        let style = { key: defaultStyleKey, ...perchanceStyles[defaultStyleKey] };
+        let style = { key: defaultStyleKey, ...imageStyles[defaultStyleKey] };
 
         if (stylePart) {
             const found = findStyle(stylePart);
@@ -59,10 +61,11 @@ export default {
 
         await ctx.react('⏳️');
         try {
-            const { buffer } = await generatePerchanceImage({ prompt: promptPart, style });
+            const fullPrompt = style.promptSuffix ? `${promptPart}, ${style.promptSuffix}` : promptPart;
+            const buffer = await generateImageHuggingFace(fullPrompt, style.negativeSuffix);
 
             const caption =
-                `•  ${menuConfig.aiFace} \`Image (Perchance)\`  ᰨᰍ\n\n` +
+                `•  ${menuConfig.aiFace} \`Image\`  ᰨᰍ\n\n` +
                 `${promptPart}\n` +
                 `> ── ˚. ᵎᵎ ۠ Art style: *${style.label}* (\`${styleKey}\`)`;
 
@@ -70,6 +73,9 @@ export default {
             await ctx.react('✅️');
         } catch (err) {
             await ctx.react('❌️');
+            if (String(err.message).includes('HUGGINGFACE_API_KEY')) {
+                return ctx.reply(messages.aiNotConfigured('HUGGINGFACE_API_KEY'));
+            }
             await ctx.reply(messages.imageError(err.message || err));
         }
     }

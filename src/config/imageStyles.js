@@ -1,20 +1,19 @@
 /**
- * src/config/perchanceStyles.js
+ * src/config/imageStyles.js
  * -----------------------------------------------------------------------
- * Catálogo de "Art styles" para el comando .image (generador de imágenes
- * de Perchance, https://perchance.org/ai-text-to-image-generator).
- *
- * Perchance no tiene API oficial: estos estilos son los mismos que usa el
- * dropdown "Art Style" del sitio, traducidos a los textos adicionales que
- * hay que sumarle al prompt (y al prompt negativo) para lograr ese look,
- * siguiendo lo documentado por implementaciones no oficiales de la API.
+ * Catálogo de "Art styles" para el comando .image. Son los mismos nombres
+ * que usa el dropdown "Art Style" de https://perchance.org (No style,
+ * Painted Anime, Cinematic, etc.), traducidos a texto adicional que se le
+ * suma al prompt (y al prompt negativo) para lograr ese look. Funcionan
+ * con cualquier backend de generación de imágenes (actualmente Hugging
+ * Face, ver src/utils/api.js -> generateImageHuggingFace).
  *
  * Para agregar un estilo nuevo: sumar una entrada acá, no hace falta
  * tocar el comando ni el generador.
  * -----------------------------------------------------------------------
  */
 
-export const perchanceStyles = {
+export const imageStyles = {
     none: {
         label: 'No style',
         aliases: ['none', 'no-style', 'sin-estilo', 'sinestilo', 'normal', 'ninguno'],
@@ -98,7 +97,7 @@ export const findStyle = (input) => {
     const needle = normalize(input);
 
     for (const key of styleOrder) {
-        const style = perchanceStyles[key];
+        const style = imageStyles[key];
         if (normalize(key) === needle) return { key, ...style };
         if (normalize(style.label) === needle) return { key, ...style };
         if ((style.aliases || []).some((alias) => normalize(alias) === needle)) {
@@ -111,6 +110,6 @@ export const findStyle = (input) => {
 
 /** Texto formateado con el listado de estilos disponibles (para el .menu o errores) */
 export const listStylesText = () =>
-    styleOrder.map((key) => `• *${perchanceStyles[key].label}* → \`${key}\``).join('\n');
+    styleOrder.map((key) => `• *${imageStyles[key].label}* → \`${key}\``).join('\n');
 
-export default perchanceStyles;
+export default imageStyles;

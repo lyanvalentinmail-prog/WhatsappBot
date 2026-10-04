@@ -83,9 +83,8 @@ export const messages = {
         `*Estilos disponibles (Art style):*\n${stylesList}\n\n` +
         `Ej: \`${prefix}image un gato astronauta | painted-anime\``,
     imageError: (err) =>
-        `${symbols.error} No se pudo generar la imagen con Perchance.\n` +
-        `> ${err}\n\n` +
-        `_Es una integración no oficial: si Perchance cambió su sitio, puede dejar de funcionar hasta actualizarla._`
+        `${symbols.error} No se pudo generar la imagen.\n` +
+        `> ${err}`
 };
 
 export default messages;

@@ -21,6 +21,10 @@ export const apiEndpoints = {
     },
     groq: {
         chat: 'https://api.groq.com/openai/v1/chat/completions'
+    },
+    huggingface: {
+        // El modelo se interpola en src/utils/api.js (HUGGINGFACE_IMAGE_MODEL en .env)
+        image: (model) => `https://api-inference.huggingface.co/models/${model}`
     }
 };
 

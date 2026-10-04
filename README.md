@@ -31,7 +31,7 @@ bot-whatsapp/
 │   │   ├── general/
 │   │   ├── grupo/
 │   │   ├── anime/
-│   │   ├── ia/                   # .image (Perchance, sin API key)
+│   │   ├── ia/                   # .image (Hugging Face)
 │   │   ├── juegos/
 │   │   ├── herramientas/
 │   │   └── owner/
@@ -329,11 +329,15 @@ Para agregar un proveedor nuevo (Claude, DeepSeek, Mistral, OpenRouter...):
 2. Agrega una función `askNombre()` en `src/utils/api.js`.
 3. Suma un comando en `src/plugins/ai.js` usando el mismo patrón.
 
-### 🖼️ `.image` — generación de imágenes con Perchance (sin API key)
+### 🖼️ `.image` — generación de imágenes con Hugging Face (gratis, sin tarjeta)
 
-`.image <descripción> | <estilo>` genera una imagen usando el generador
-de IA de [Perchance](https://perchance.org/ai-text-to-image-generator),
-sin necesitar ninguna API key propia. No requiere configuración en `.env`.
+`.image <descripción> | <estilo>` genera una imagen a partir de tu
+descripción usando un modelo de [Hugging Face](https://huggingface.co)
+(Stable Diffusion XL por defecto). Requiere un token gratuito:
+
+1. Crea una cuenta gratis en <https://huggingface.co/join> (no pide tarjeta).
+2. Generá un token en <https://huggingface.co/settings/tokens> (alcanza con permisos de lectura).
+3. Pegalo en tu `.env` como `HUGGINGFACE_API_KEY=hf_...`.
 
 ```
 .image un gato astronauta pintando un cuadro | painted-anime
@@ -341,21 +345,23 @@ sin necesitar ninguna API key propia. No requiere configuración en `.env`.
 .image estilos                        (lista los Art styles disponibles)
 ```
 
-Art styles disponibles (`src/config/perchanceStyles.js`): **No style**,
+Art styles disponibles (`src/config/imageStyles.js`): **No style**,
 **Painted Anime**, Cinematic, Traditional Japanese, Casual Photo,
 Digital Painting y Concept Art. Se pueden escribir en minúsculas, con o
 sin tildes/guiones (ej: `anime`, `Painted Anime` y `painted-anime` son
 equivalentes).
 
-⚠️ **Importante:** Perchance no tiene una API pública ni oficial. Este
-comando funciona reconstruyendo (con simples pedidos HTTP vía `axios`,
-**sin usar ningún navegador automatizado**) el mismo flujo de dos pasos
-que usa la propia web para generar imágenes. Al ser una integración no
-documentada, Perchance podría cambiar su sitio en cualquier momento y
-romper el comando sin aviso — si eso pasa, `.image` responde con un
-error claro (reacciona `❌️` y explica el problema) en vez de colgarse.
-Toda la lógica vive aislada en `src/utils/perchance.js` para poder
-ajustarla fácilmente si el servicio cambia.
+> 🧭 **Nota sobre Perchance:** originalmente se evaluó usar
+> `perchance.org/ai-text-to-image-generator` (sin ninguna API key), pero
+> Perchance agregó protección anti-bot (Cloudflare Turnstile) a sus
+> endpoints: generar una imagen ahí ahora exige resolver un captcha con
+> un navegador real, algo incompatible con este proyecto (nada de
+> Selenium/Puppeteer/Playwright). Por eso `.image` usa Hugging Face, que
+> tiene una API HTTP real y documentada, con una capa gratuita genuina.
+
+El modelo usado se puede cambiar sin tocar código con
+`HUGGINGFACE_IMAGE_MODEL` en `.env` (cualquier modelo de
+"text-to-image" público del Hub de Hugging Face).
 
 ---
 
