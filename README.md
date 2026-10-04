@@ -329,13 +329,14 @@ Para agregar un proveedor nuevo (Claude, DeepSeek, Mistral, OpenRouter...):
 2. Agrega una función `askNombre()` en `src/utils/api.js`.
 3. Suma un comando en `src/plugins/ai.js` usando el mismo patrón.
 
-### 🖼️ `.image` — generación de imágenes con Hugging Face (gratis, sin tarjeta)
+### 🖼️ `.image` — generación de imágenes con Hugging Face
 
 `.image <descripción> | <estilo>` genera una imagen a partir de tu
 descripción usando un modelo de [Hugging Face](https://huggingface.co)
-(Stable Diffusion XL por defecto). Requiere un token gratuito:
+(Stable Diffusion 3 Medium por defecto, vía su proveedor gratuito
+`hf-inference`). Requiere un token de acceso:
 
-1. Crea una cuenta gratis en <https://huggingface.co/join> (no pide tarjeta).
+1. Crea una cuenta gratis en <https://huggingface.co/join> (no pide tarjeta para registrarte).
 2. Generá un token en <https://huggingface.co/settings/tokens> (alcanza con permisos de lectura).
 3. Pegalo en tu `.env` como `HUGGINGFACE_API_KEY=hf_...`.
 
@@ -351,9 +352,20 @@ Digital Painting y Concept Art. Se pueden escribir en minúsculas, con o
 sin tildes/guiones (ej: `anime`, `Painted Anime` y `painted-anime` son
 equivalentes).
 
+⚠️ **Sobre el costo:** la cuenta gratuita de Hugging Face no requiere
+tarjeta para crearse, pero incluye solo **$0.10 de crédito por mes** para
+generación de imágenes/video (se renueva cada mes). Eso alcanza para unas
+~50-80 imágenes mensuales aproximadamente; si se agota antes de fin de
+mes, `.image` responde con un error claro indicando que hay que esperar
+al próximo mes o cargar crédito en huggingface.co/pricing. Para un uso
+personal/grupo chico normalmente alcanza de sobra.
+
 El modelo usado se puede cambiar sin tocar código con
-`HUGGINGFACE_IMAGE_MODEL` en `.env` (cualquier modelo de
-"text-to-image" público del Hub de Hugging Face).
+`HUGGINGFACE_IMAGE_MODEL` en `.env` — pero ojo: el proveedor gratuito
+`hf-inference` solo sirve un modelo de texto-a-imagen
+(`stabilityai/stable-diffusion-3-medium-diffusers`). Usar otro modelo
+puede requerir un proveedor de pago (fal, Replicate, etc.) y gastar el
+crédito más rápido.
 
 ---
 

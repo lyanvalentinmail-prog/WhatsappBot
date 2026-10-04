@@ -49,7 +49,7 @@ export const config = {
         geminiModel: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
         groqModel: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
         huggingfaceImageModel:
-            process.env.HUGGINGFACE_IMAGE_MODEL || 'stabilityai/stable-diffusion-xl-base-1.0'
+            process.env.HUGGINGFACE_IMAGE_MODEL || 'stabilityai/stable-diffusion-3-medium-diffusers'
     },
 
     // Descargas

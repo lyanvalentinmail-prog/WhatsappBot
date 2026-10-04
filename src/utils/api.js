@@ -145,6 +145,20 @@ export const generateImageHuggingFace = async (prompt, negativePrompt = '') => {
             throw new Error('HUGGINGFACE_API_KEY inválida o sin permisos para este modelo.');
         }
 
+        if (response.status === 402) {
+            throw new Error(
+                'Se agotó el crédito gratuito mensual de Hugging Face para generar imágenes. ' +
+                    'Esperá al próximo mes o cargá crédito en huggingface.co/pricing.'
+            );
+        }
+
+        if (response.status === 404) {
+            throw new Error(
+                `El modelo "${config.ai.huggingfaceImageModel}" no está disponible en Hugging Face. ` +
+                    'Probá cambiar HUGGINGFACE_IMAGE_MODEL en tu .env.'
+            );
+        }
+
         if (payload.error && /loading|queue/i.test(payload.error)) {
             const waitMs = Math.min(Math.ceil((payload.estimated_time || 12) * 1000), 25_000);
             logger.debug(`Hugging Face: modelo cargando, reintentando en ${waitMs}ms...`);

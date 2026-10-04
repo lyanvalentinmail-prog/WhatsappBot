@@ -24,7 +24,9 @@ export const apiEndpoints = {
     },
     huggingface: {
         // El modelo se interpola en src/utils/api.js (HUGGINGFACE_IMAGE_MODEL en .env)
-        image: (model) => `https://api-inference.huggingface.co/models/${model}`
+        // IMPORTANTE: Hugging Face apagó api-inference.huggingface.co (dominio
+        // retirado, ya no resuelve DNS) y movió todo a router.huggingface.co.
+        image: (model) => `https://router.huggingface.co/hf-inference/models/${model}`
     }
 };
 
