@@ -32,6 +32,13 @@ export const apiEndpoints = {
         // API pública y gratuita (sin key) usada por .ssearch.
         stickerlySearch: (query) =>
             `https://api.delirius.online/search/stickerly?query=${encodeURIComponent(query)}`
+    },
+    ferdev: {
+        // Respaldo de .ssearch (requiere FERDEV_API_KEY, gratis con registro
+        // en https://api.ferdev.me/register) usado solo si delirius.online
+        // no responde.
+        stickerlySearch: (query, apikey) =>
+            `https://api.ferdev.me/sticker/stickerlysearch?query=${encodeURIComponent(query)}&apikey=${encodeURIComponent(apikey)}`
     }
 };
 

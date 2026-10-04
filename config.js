@@ -58,6 +58,14 @@ export const config = {
         apiKey: process.env.DOWNLOAD_API_KEY || ''
     },
 
+    // Stickers (búsqueda de Sticker.ly)
+    stickers: {
+        // Respaldo OPCIONAL para .ssearch cuando la API gratuita principal
+        // (delirius.online, sin key) esté caída. Se obtiene gratis
+        // registrándose en https://api.ferdev.me/register
+        ferdevApiKey: process.env.FERDEV_API_KEY || ''
+    },
+
     // Base de datos
     database: {
         driver: process.env.DATABASE_DRIVER || 'json',

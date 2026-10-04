@@ -262,8 +262,46 @@ export const fetchBuffer = async (url, timeoutMs = 30_000) => {
 };
 
 /**
- * Busca stickers de Sticker.ly por nombre/tema, vía la API pública de
- * delirius.online (gratuita, sin API key).
+ * Intenta "adivinar" la forma de la respuesta de un buscador de
+ * Sticker.ly, probando varios nombres de campo comunes entre distintas
+ * APIs de terceros (no todas devuelven exactamente lo mismo). Si el
+ * formato real difiere, esto puede necesitar un ajuste puntual: queda
+ * registrado en logs de debug para poder diagnosticarlo.
+ * @returns {Array<{name: string, preview: string, isAnimated?: boolean}>}
+ */
+const normalizeStickerlyResults = (raw) => {
+    const list =
+        (Array.isArray(raw?.data) && raw.data) ||
+        (Array.isArray(raw?.result) && raw.result) ||
+        (Array.isArray(raw?.results) && raw.results) ||
+        (Array.isArray(raw) && raw) ||
+        [];
+
+    return list
+        .map((item) => {
+            const preview =
+                item?.preview ||
+                item?.thumbnail ||
+                item?.thumb ||
+                item?.image ||
+                item?.imageUrl ||
+                item?.cover ||
+                item?.stickers?.[0]?.imageUrl ||
+                item?.stickers?.[0]?.url ||
+                '';
+            const name = item?.name || item?.packName || item?.title || '';
+            const isAnimated = Boolean(item?.isAnimated ?? item?.animated ?? false);
+            return preview ? { name, preview, isAnimated } : null;
+        })
+        .filter(Boolean);
+};
+
+/**
+ * Busca stickers de Sticker.ly por nombre/tema. Intenta primero la API
+ * pública y gratuita de delirius.online (sin key); si no responde (ese
+ * servicio se cae con frecuencia) y hay una FERDEV_API_KEY configurada
+ * en .env (gratis, registrándose en https://api.ferdev.me/register), la
+ * usa como respaldo automático.
  * @param {string} query
  * @returns {Promise<Array<{name: string, preview: string, isAnimated?: boolean}>>}
  */
@@ -273,15 +311,33 @@ export const searchStickerly = async (query) => {
             timeout: 10_000,
             headers: { 'User-Agent': 'Mozilla/5.0 (Linux; Android 15) Chrome/120.0.0.0 Mobile Safari/537.36' }
         });
-        return Array.isArray(data?.data) ? data.data : [];
+        // Petición exitosa: devolvemos lo que haya (puede ser [] si
+        // legítimamente no hay resultados para esa búsqueda, eso no es un
+        // error, lo maneja el comando mostrando "no se encontraron...").
+        return normalizeStickerlyResults(data);
     } catch (err) {
+        // Acá sí falló la petición en sí (timeout, 5xx, DNS caída, etc.),
+        // no que "no haya resultados". Intentamos el respaldo si hay key.
+        logger.debug(`delirius.online (stickerly) falló: ${err.message}`);
+
+        if (config.stickers.ferdevApiKey) {
+            try {
+                const { data } = await axios.get(
+                    apiEndpoints.ferdev.stickerlySearch(query, config.stickers.ferdevApiKey),
+                    { timeout: 10_000 }
+                );
+                return normalizeStickerlyResults(data);
+            } catch (ferdevErr) {
+                logger.debug(`ferdev.me (stickerly) también falló: ${ferdevErr.message}`);
+            }
+        }
+
         // El buscador de Sticker.ly depende de un servicio público gratuito
-        // de terceros (delirius.online) que el bot no controla. Si está
-        // caído (timeout, 5xx, DNS, etc.) lo avisamos claro en vez de un
-        // error genérico de axios.
+        // de terceros que el bot no controla. Si está caído (timeout, 5xx,
+        // DNS, etc.) lo avisamos claro en vez de un error genérico de axios.
         throw new Error(
-            'El buscador de stickers (servicio externo "delirius.online") no está disponible en este momento. ' +
-                'No depende del bot: probá de nuevo más tarde.'
+            'El buscador de stickers no está disponible en este momento (el/los servicio/s externo/s ' +
+                'que usa están caídos). No depende del bot: probá de nuevo más tarde.'
         );
     }
 };
