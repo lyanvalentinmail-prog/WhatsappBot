@@ -10,6 +10,7 @@
 
 import { getGroup } from '../database/index.js';
 import { jidToNumber } from '../utils/helpers.js';
+import { invalidateGroupMetadata } from '../utils/groupMetadataCache.js';
 import { logger } from '../utils/logger.js';
 
 const defaultWelcome = (user, group) =>
@@ -19,8 +20,21 @@ const defaultBye = (user, group) =>
     `╭─〔 HASTA PRONTO 〕\n│\n│ @${user} salió de *${group}*\n│\n╰──────────────`;
 
 export const registerEvents = (sock) => {
+    // Cambios de nombre/foto/configuración del grupo: también invalida la
+    // metadata cacheada.
+    sock.ev.on('groups.update', (updates) => {
+        for (const update of updates) {
+            if (update?.id) invalidateGroupMetadata(update.id);
+        }
+    });
+
     sock.ev.on('group-participants.update', async ({ id, participants, action }) => {
         try {
+            // Cambió quién está (o quién es admin) en el grupo: invalidamos
+            // la metadata cacheada para que los próximos comandos vean el
+            // estado real (ver src/utils/groupMetadataCache.js).
+            invalidateGroupMetadata(id);
+
             const group = getGroup(id);
             if (!group.settings.welcome) return;
 

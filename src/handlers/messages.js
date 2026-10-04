@@ -17,6 +17,7 @@ import { commandHandler } from './commands.js';
 import { extractText, getQuotedMessage } from '../utils/formatter.js';
 import { extractMentions, jidToNumber, normalizeNumber } from '../utils/helpers.js';
 import { isBlocked, incrementUserMessages } from '../database/index.js';
+import { getGroupMetadata } from '../utils/groupMetadataCache.js';
 import { logger } from '../utils/logger.js';
 
 /** Devuelve el listado de JIDs administradores de un grupo */
@@ -25,8 +26,18 @@ const getGroupAdmins = (groupMetadata) =>
         .filter((p) => p.admin === 'admin' || p.admin === 'superadmin')
         .map((p) => p.id);
 
-/** Construye el "contexto" (ctx) que reciben todos los comandos */
-const buildContext = async (sock, msg) => {
+/**
+ * Construye el "contexto" (ctx) que reciben todos los comandos.
+ *
+ * IMPORTANTE (rendimiento): esto NO pide la metadata del grupo por red.
+ * sock.groupMetadata() siempre hace una consulta de red a WhatsApp (no
+ * tiene caché propia), así que pedirla acá adentro para CADA mensaje
+ * entrante (incluso charla normal que ni es un comando) agrega latencia
+ * innecesaria y puede hacer que el bot se sienta lento o "colgado" en
+ * grupos activos. Por eso la metadata se resuelve aparte, solo cuando
+ * hace falta (ver `attachGroupInfo` más abajo), y usando una caché.
+ */
+const buildContext = (sock, msg) => {
     const from = msg.key.remoteJid;
     const isGroup = from.endsWith('@g.us');
     const botJid = sock.user?.id?.split(':')[0];
@@ -42,18 +53,7 @@ const buildContext = async (sock, msg) => {
           : from;
     const senderNumber = normalizeNumber(jidToNumber(sender));
 
-    let groupMetadata = null;
-    let groupAdmins = [];
-    if (isGroup) {
-        groupMetadata = await sock.groupMetadata(from).catch(() => null);
-        groupAdmins = getGroupAdmins(groupMetadata);
-    }
-
     const isOwner = ownerNumbers.includes(senderNumber);
-    const isAdmin = isGroup ? groupAdmins.includes(sender) : false;
-    const isBotAdmin = isGroup
-        ? groupAdmins.some((jid) => jidToNumber(jid) === botJid)
-        : false;
 
     const text = extractText(msg);
     const quoted = getQuotedMessage(msg);
@@ -71,20 +71,42 @@ const buildContext = async (sock, msg) => {
         msg,
         from,
         isGroup,
+        botJid,
         sender,
         senderNumber,
         text,
         quoted,
         mentions,
-        groupMetadata,
-        groupAdmins,
+        groupMetadata: null,
+        groupAdmins: [],
         isOwner,
-        isAdmin,
-        isBotAdmin,
+        isAdmin: false,
+        isBotAdmin: false,
         reply,
         react,
         config
     };
+};
+
+/**
+ * Completa `ctx` con datos del grupo (metadata, admins) solo cuando hace
+ * falta: se llama una única vez, después de confirmar que el mensaje es
+ * un comando válido dentro de un grupo. Usa caché (ver
+ * src/utils/groupMetadataCache.js) para no golpear la red en cada
+ * comando.
+ */
+const attachGroupInfo = async (ctx) => {
+    if (!ctx.isGroup) return ctx;
+
+    const groupMetadata = await getGroupMetadata(ctx.sock, ctx.from);
+    const groupAdmins = getGroupAdmins(groupMetadata);
+
+    ctx.groupMetadata = groupMetadata;
+    ctx.groupAdmins = groupAdmins;
+    ctx.isAdmin = groupAdmins.includes(ctx.sender);
+    ctx.isBotAdmin = groupAdmins.some((jid) => jidToNumber(jid) === ctx.botJid);
+
+    return ctx;
 };
 
 /** Separa el texto en comando + argumentos, respetando el prefijo configurado */
@@ -119,7 +141,7 @@ export const handleMessage = async (sock, msg) => {
         // vinculado con tu propio número de WhatsApp (lo normal en Termux),
         // los comandos que vos mismo escribís también llegan con
         // fromMe=true, y deben poder ejecutarse (sos el owner).
-        const ctx = await buildContext(sock, msg);
+        const ctx = buildContext(sock, msg);
         logger.debug(`Mensaje recibido de ${ctx.sender} en ${ctx.from}: "${ctx.text}"`);
         if (!ctx.text) return;
 
@@ -140,6 +162,10 @@ export const handleMessage = async (sock, msg) => {
         ctx.args = parsed.args;
         ctx.prefix = parsed.usedPrefix || config.prefix;
         ctx.commandName = command.name;
+
+        // Recién ahora (comando confirmado) vale la pena pedir la
+        // metadata del grupo, y queda cacheada para el próximo comando.
+        await attachGroupInfo(ctx);
 
         // ---- Validación de permisos ----
         if (config.mode === 'private' && !ctx.isOwner) {
@@ -181,3 +207,4 @@ export const handleMessage = async (sock, msg) => {
 const reply = (ctx, text) => ctx.reply(text);
 
 export default handleMessage;
+
