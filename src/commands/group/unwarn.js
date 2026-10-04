@@ -7,6 +7,7 @@ export default {
     category: 'grupo',
     description: 'Quita una advertencia a un usuario',
     usage: '.unwarn @usuario',
+    args: 'mention',
     groupOnly: true,
     adminOnly: true,
     async execute(ctx) {
@@ -16,7 +17,7 @@ export default {
         removeWarning(ctx.from, target);
         const total = getWarnings(ctx.from, target);
         await ctx.reply({
-            text: `✅ Advertencia quitada a @${target.split('@')[0]}. Ahora tiene ${total}.`,
+            text: `✅️ Advertencia quitada a @${target.split('@')[0]}. Ahora tiene ${total}.`,
             mentions: [target]
         });
     }

@@ -30,6 +30,7 @@ const createReactionCommand = ({ name, aliases, verb }) => ({
     category: 'anime',
     description: `Comando de reacción de anime: ${verb}`,
     usage: `.${name} @usuario`,
+    args: 'mention',
     groupOnly: false,
     ownerOnly: false,
     async execute(ctx) {

@@ -6,6 +6,7 @@ export default {
     category: 'grupo',
     description: 'Convierte a un usuario en administrador',
     usage: '.promote @usuario',
+    args: 'mention',
     groupOnly: true,
     adminOnly: true,
     botAdmin: true,
@@ -14,6 +15,6 @@ export default {
         if (!target) return ctx.reply(messages.needMention);
 
         await ctx.sock.groupParticipantsUpdate(ctx.from, [target], 'promote');
-        await ctx.reply({ text: `✅ @${target.split('@')[0]} ahora es administrador.`, mentions: [target] });
+        await ctx.reply({ text: `✅️ @${target.split('@')[0]} ahora es administrador.`, mentions: [target] });
     }
 };

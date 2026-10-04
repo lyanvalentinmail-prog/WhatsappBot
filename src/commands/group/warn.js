@@ -9,6 +9,7 @@ export default {
     category: 'grupo',
     description: 'Da una advertencia a un usuario (al llegar a 3 es expulsado)',
     usage: '.warn @usuario',
+    args: 'mention',
     groupOnly: true,
     adminOnly: true,
     async execute(ctx) {

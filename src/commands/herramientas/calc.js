@@ -7,15 +7,16 @@ export default {
     category: 'herramientas',
     description: 'Realiza una operación matemática simple',
     usage: '.calc 2 + 2 * 10',
+    args: 'texto',
     groupOnly: false,
     ownerOnly: false,
     async execute(ctx) {
         const expression = ctx.args.join(' ');
-        if (!expression) return ctx.reply('❌ Escribe una operación. Ej: .calc (4 + 2) * 3');
+        if (!expression) return ctx.reply('❌️ Escribe una operación. Ej: .calc (4 + 2) * 3');
 
         // Solo se permiten números, espacios y operadores matemáticos básicos.
         if (!/^[0-9+\-*/().\s%]+$/.test(expression)) {
-            return ctx.reply('❌ Esa expresión contiene caracteres no permitidos.');
+            return ctx.reply('❌️ Esa expresión contiene caracteres no permitidos.');
         }
 
         try {
@@ -23,7 +24,7 @@ export default {
             const result = Function(`"use strict"; return (${expression})`)();
             await ctx.reply(`🧮 Resultado: *${result}*`);
         } catch {
-            await ctx.reply('❌ No se pudo calcular esa expresión.');
+            await ctx.reply('❌️ No se pudo calcular esa expresión.');
         }
     }
 };

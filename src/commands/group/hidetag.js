@@ -4,6 +4,7 @@ export default {
     category: 'grupo',
     description: 'Envía un mensaje notificando a todos sin mostrar la lista',
     usage: '.hidetag <mensaje>',
+    args: 'texto',
     groupOnly: true,
     adminOnly: true,
     async execute(ctx) {

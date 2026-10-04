@@ -5,12 +5,21 @@
  * idioma, el tono o el diseño de los mensajes, este es el único archivo
  * que necesitas tocar (no deberían escribirse strings sueltos dentro
  * de los comandos).
+ *
+ * Símbolos estándar de estado (según la plantilla de diseño):
+ *   Espera -> ⏳️      Listo -> ✅️      Error -> ❌️
  * -----------------------------------------------------------------------
  */
 
+export const symbols = {
+    wait: '⏳️',
+    success: '✅️',
+    error: '❌️'
+};
+
 export const messages = {
     // Permisos
-    noPermission: '❌ No tienes permiso para utilizar este comando.',
+    noPermission: `${symbols.error} No tienes permiso para utilizar este comando.`,
     ownerOnly:
         '╭─〔 PERMISO DENEGADO 〕\n' +
         '│\n' +
@@ -32,19 +41,20 @@ export const messages = {
         '│ grupo para ejecutar esta acción.\n' +
         '│\n' +
         '╰──────────────',
-    groupOnly: '❌ Este comando solo funciona dentro de un grupo.',
-    privateOnly: '❌ Este comando solo funciona en chat privado.',
-    botDisabledPrivate: '🚫 El bot está en modo privado, solo el propietario puede usarlo.',
+    groupOnly: `${symbols.error} Este comando solo funciona dentro de un grupo.`,
+    privateOnly: `${symbols.error} Este comando solo funciona en chat privado.`,
+    botDisabledPrivate: `🚫 El bot está en modo privado, solo el propietario puede usarlo.`,
 
     // Estado / utilidades
-    wait: '⏳ Procesando...',
-    error: '❌ Ocurrió un error ejecutando el comando.',
-    commandError: (err) => `❌ Error ejecutando el comando:\n\`\`\`${err}\`\`\``,
+    wait: `${symbols.wait} Procesando...`,
+    success: `${symbols.success} Listo.`,
+    error: `${symbols.error} Ocurrió un error ejecutando el comando.`,
+    commandError: (err) => `${symbols.error} Error ejecutando el comando:\n\`\`\`${err}\`\`\``,
     commandNotFound: (cmd, prefix) =>
-        `❌ El comando *${cmd}* no existe. Usa *${prefix}menu* para ver la lista de comandos.`,
-    needQuotedOrMedia: '❌ Responde a una imagen o video, o envíalo junto con el comando.',
-    needMention: '❌ Debes mencionar o responder al usuario objetivo.',
-    invalidNumber: '❌ El número ingresado no es válido.',
+        `${symbols.error} El comando *${cmd}* no existe. Usa *${prefix}menu* para ver la lista de comandos.`,
+    needQuotedOrMedia: `${symbols.error} Responde a una imagen o video, o envíalo junto con el comando.`,
+    needMention: `${symbols.error} Debes mencionar o responder al usuario objetivo.`,
+    invalidNumber: `${symbols.error} El número ingresado no es válido.`,
 
     // Conexión
     waitingConnection: '→ Esperando conexión...',
@@ -55,10 +65,9 @@ export const messages = {
 
     // Genéricos de comandos
     pong: (ms) => `🏓 *Pong!*\n> Latencia: ${ms}ms`,
-    processingSticker: '⏳ Creando sticker...',
-    stickerError: '❌ No se pudo crear el sticker. Asegúrate de responder a una imagen o video corto.',
-    downloadNotConfigured:
-        '⚠️ Esta función necesita que configures DOWNLOAD_API_URL en tu archivo .env.',
+    processingSticker: `${symbols.wait} Creando sticker...`,
+    stickerError: `${symbols.error} No se pudo crear el sticker. Asegúrate de responder a una imagen o video corto.`,
+    downloadNotConfigured: `⚠️ Esta función necesita que configures DOWNLOAD_API_URL en tu archivo .env.`,
     aiNotConfigured: (service) =>
         `⚠️ Configura la variable ${service} en tu archivo .env para usar este comando.`
 };

@@ -38,9 +38,9 @@ export const botConfig = {
 
     // Emojis/símbolos usados en respuestas (fácil de cambiar)
     symbols: {
-        success: '✅',
-        error: '❌',
-        wait: '⏳',
+        success: '✅️',
+        error: '❌️',
+        wait: '⏳️',
         warn: '⚠️',
         info: 'ℹ️',
         bullet: '•',

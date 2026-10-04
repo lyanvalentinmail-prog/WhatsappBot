@@ -7,12 +7,13 @@ export default {
     category: 'owner',
     description: 'Desbloquea a un usuario previamente bloqueado',
     usage: '.unblock @usuario',
+    args: 'mention',
     ownerOnly: true,
     async execute(ctx) {
         const target = ctx.mentions[0] || ctx.quoted?.key?.participant;
         if (!target) return ctx.reply(messages.needMention);
 
         unblockUser(target);
-        await ctx.reply({ text: `✅ @${target.split('@')[0]} fue desbloqueado.`, mentions: [target] });
+        await ctx.reply({ text: `✅️ @${target.split('@')[0]} fue desbloqueado.`, mentions: [target] });
     }
 };

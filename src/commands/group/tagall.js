@@ -4,6 +4,7 @@ export default {
     category: 'grupo',
     description: 'Menciona a todos los miembros del grupo',
     usage: '.tagall [mensaje]',
+    args: 'texto',
     groupOnly: true,
     adminOnly: true,
     async execute(ctx) {

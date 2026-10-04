@@ -7,6 +7,7 @@ export default {
     category: 'owner',
     description: 'Bloquea a un usuario para que no use el bot',
     usage: '.block @usuario',
+    args: 'mention',
     ownerOnly: true,
     async execute(ctx) {
         const target = ctx.mentions[0] || ctx.quoted?.key?.participant;

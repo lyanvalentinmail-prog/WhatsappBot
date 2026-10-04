@@ -35,10 +35,11 @@ const eightBall = {
     category: 'juegos',
     description: 'Hazle una pregunta a la bola 8 mágica',
     usage: '.8ball <pregunta>',
+    args: 'texto',
     groupOnly: false,
     ownerOnly: false,
     async execute(ctx) {
-        if (!ctx.args.length) return ctx.reply('❌ Hazme una pregunta: .8ball ¿Me amara?');
+        if (!ctx.args.length) return ctx.reply('❌️ Hazme una pregunta: .8ball ¿Me amara?');
         const answers = [
             'Sí, definitivamente.',
             'No cuentes con ello.',

@@ -20,6 +20,7 @@ const toBool = (value, fallback = false) => {
 export const config = {
     // Identidad del bot
     botName: process.env.BOT_NAME || 'MiBot',
+    botType: process.env.BOT_TYPE || 'Multi Device',
     botOwner: process.env.BOT_OWNER || 'Owner',
     prefix: process.env.BOT_PREFIX || '.',
     allowNoPrefix: toBool(process.env.ALLOW_NO_PREFIX, false),

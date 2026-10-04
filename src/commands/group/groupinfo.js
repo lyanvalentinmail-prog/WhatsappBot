@@ -7,7 +7,7 @@ export default {
     groupOnly: true,
     async execute(ctx) {
         const meta = ctx.groupMetadata;
-        if (!meta) return ctx.reply('❌ No se pudo obtener la información del grupo.');
+        if (!meta) return ctx.reply('❌️ No se pudo obtener la información del grupo.');
 
         const admins = meta.participants.filter((p) => p.admin).length;
         const creation = meta.creation

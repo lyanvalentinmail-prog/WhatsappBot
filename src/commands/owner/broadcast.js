@@ -7,10 +7,11 @@ export default {
     category: 'owner',
     description: 'Envía un mensaje a todos los usuarios conocidos por el bot',
     usage: '.broadcast <mensaje>',
+    args: 'texto',
     ownerOnly: true,
     async execute(ctx) {
         const text = ctx.args.join(' ');
-        if (!text) return ctx.reply('❌ Debes escribir un mensaje: .broadcast <mensaje>');
+        if (!text) return ctx.reply('❌️ Debes escribir un mensaje: .broadcast <mensaje>');
 
         const users = Object.keys(getRawData().users);
         await ctx.reply(`📣 Enviando difusión a ${users.length} chats...`);
@@ -26,6 +27,6 @@ export default {
             }
         }
 
-        await ctx.reply(`✅ Difusión enviada a ${sent}/${users.length} chats.`);
+        await ctx.reply(`✅️ Difusión enviada a ${sent}/${users.length} chats.`);
     }
 };

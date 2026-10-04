@@ -27,13 +27,14 @@ const createDownloadCommand = ({ name, aliases, endpoint, label, sendAs }) => ({
     category: 'descargas',
     description: `Descarga contenido de ${label}`,
     usage: `.${name} <enlace>`,
+    args: 'url',
     groupOnly: false,
     ownerOnly: false,
     async execute(ctx) {
         if (!config.downloads.apiUrl) return ctx.reply(messages.downloadNotConfigured);
 
         const url = ctx.args[0];
-        if (!url || !isUrl(url)) return ctx.reply(`❌ Envía un enlace válido. Ej: .${name} https://...`);
+        if (!url || !isUrl(url)) return ctx.reply(`❌️ Envía un enlace válido. Ej: .${name} https://...`);
 
         await ctx.reply(messages.wait);
         try {
@@ -42,7 +43,7 @@ const createDownloadCommand = ({ name, aliases, endpoint, label, sendAs }) => ({
             if (!fileUrl) throw new Error('La API de descargas no devolvió un enlace válido.');
 
             const buffer = await getBuffer(fileUrl);
-            const caption = `✅ ${result.title || label}`;
+            const caption = `✅️ ${result.title || label}`;
 
             if (sendAs === 'audio') {
                 await ctx.sock.sendMessage(ctx.from, { audio: buffer, mimetype: 'audio/mpeg' }, { quoted: ctx.msg });

@@ -7,6 +7,7 @@ export default {
     category: 'grupo',
     description: 'Agrega un número al grupo',
     usage: '.add 5491122334455',
+    args: 'numero',
     groupOnly: true,
     adminOnly: true,
     botAdmin: true,
@@ -17,9 +18,9 @@ export default {
         const jid = toJid(number);
         try {
             await ctx.sock.groupParticipantsUpdate(ctx.from, [jid], 'add');
-            await ctx.reply(`✅ Se envió la invitación a +${number}.`);
+            await ctx.reply(`✅️ Se envió la invitación a +${number}.`);
         } catch (err) {
-            await ctx.reply('❌ No se pudo agregar al usuario (puede tener la privacidad restringida).');
+            await ctx.reply('❌️ No se pudo agregar al usuario (puede tener la privacidad restringida).');
         }
     }
 };

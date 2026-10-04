@@ -281,6 +281,35 @@ Todos los textos usados por el bot (errores, permisos, esperas, etc.) están
 centralizados en `src/config/messages.js` — edítalo para cambiar el idioma o
 el tono de las respuestas.
 
+### 🎨 Plantilla visual del menú
+
+El menú sigue una plantilla de diseño fija (cabecera decorada, categorías
+con carita `❀ ૮₍ ˃̵͈᷄ . ฅ ₎ა` y argumentos entre `<...>`). Se genera así:
+
+```
+─ ׁ ׅ  𝐇ᴏʟᴀ!, sᴏʏ *MiBot* (𝐌ᴜʟᴛɪ 𝐃ᴇᴠɪᴄᴇ) . 𐔌՞ ܸ.ˬ.ܸ՞𐦯
+✎ ᴀǫᴜɪ ᴛɪᴇɴᴇs ʟᴀ ʟɪsᴛᴀ ᴅᴇ ʟᴏs ᴄᴏᴍᴀɴᴅᴏs
+...
+- ≽ ^⎚ ˕ ⎚^ ≼ *`𝐆ᴇɴᴇʀᴀʟ`* ᰨᰍ    *;*
+> ✐ ᴄᴏᴍᴀɴᴅᴏs ɢᴇɴᴇʀᴀʟᴇs ᴅᴇʟ ʙᴏᴛ
+
+  ❀ ૮₍ ˃̵͈᷄ . ฅ ₎ა   ݁  .kick + <mention>
+> ── ˚. ᵎᵎ ۠ ᴇxᴘᴜʟsᴀ ᴀ ᴜɴ ᴜsᴜᴀʀɪᴏ ᴅᴇʟ ɢʀᴜᴘᴏ.
+```
+
+Personalización disponible:
+
+- `BOT_TYPE` (.env) → texto entre paréntesis junto al nombre del bot en la
+  cabecera (ej: `Multi Device`, `Bot Oficial`, `V2`).
+- Cada comando puede declarar `args: 'mention' | 'texto' | 'url' | 'numero' | 'opcion'`
+  para que el menú muestre automáticamente `<mention>`, `<texto>`, `<url>`,
+  `<número>` u `<opción>` junto al nombre del comando. Si no se declara,
+  no se muestra ningún argumento (comandos sin parámetros, como `.ping`).
+- Las respuestas de los comandos de IA (`.chatgpt`, `.gemini`, `.groq`,
+  `.imagine`) usan el mismo estilo de carita: `≽(˵◝ ⩊  ◜˵ マ≼`.
+- Los símbolos de estado son fijos en todo el bot: `⏳️` (procesando),
+  `✅️` (listo) y `❌️` (error) — ver `src/config/messages.js`.
+
 ---
 
 ## 🧠 Inteligencia Artificial

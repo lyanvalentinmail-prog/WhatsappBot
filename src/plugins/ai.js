@@ -10,7 +10,11 @@
  */
 
 import messages from '../config/messages.js';
+import { menuConfig } from '../config/menu.js';
 import { askOpenAI, askGemini, askGroq } from '../utils/api.js';
+
+/** Formatea la respuesta de IA siguiendo la plantilla de diseño pedida */
+const formatAiReply = (label, answer) => `•  ${menuConfig.aiFace} \`${label}\`  ᰨᰍ\n\n${answer}`;
 
 const createAiCommand = ({ name, aliases, envVar, fn, label }) => ({
     name,
@@ -18,16 +22,17 @@ const createAiCommand = ({ name, aliases, envVar, fn, label }) => ({
     category: 'ia',
     description: `Habla con ${label} (inteligencia artificial)`,
     usage: `.${name} <mensaje>`,
+    args: 'texto',
     groupOnly: false,
     ownerOnly: false,
     async execute(ctx) {
         const prompt = ctx.args.join(' ') || ctx.quoted?.message?.conversation;
-        if (!prompt) return ctx.reply(`❌ Escribe un mensaje después del comando. Ej: .${name} hola`);
+        if (!prompt) return ctx.reply(`❌️ Escribe un mensaje después del comando. Ej: .${name} hola`);
 
         await ctx.reply(messages.wait);
         try {
             const answer = await fn(prompt);
-            await ctx.reply(`🤖 *${label}*\n\n${answer}`);
+            await ctx.reply(formatAiReply(label, answer));
         } catch (err) {
             if (String(err.message).includes(envVar)) {
                 return ctx.reply(messages.aiNotConfigured(envVar));

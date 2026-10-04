@@ -6,6 +6,7 @@ export default {
     category: 'grupo',
     description: 'Expulsa a un usuario del grupo',
     usage: '.kick @usuario',
+    args: 'mention',
     groupOnly: true,
     adminOnly: true,
     botAdmin: true,
@@ -14,6 +15,6 @@ export default {
         if (!target) return ctx.reply(messages.needMention);
 
         await ctx.sock.groupParticipantsUpdate(ctx.from, [target], 'remove');
-        await ctx.reply({ text: `✅ @${target.split('@')[0]} fue expulsado del grupo.`, mentions: [target] });
+        await ctx.reply({ text: `✅️ @${target.split('@')[0]} fue expulsado del grupo.`, mentions: [target] });
     }
 };

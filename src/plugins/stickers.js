@@ -75,7 +75,7 @@ const toImgCommand = {
         const type = getMessageType(target);
 
         if (type !== 'stickerMessage') {
-            return ctx.reply('❌ Responde a un sticker para convertirlo en imagen.');
+            return ctx.reply('❌️ Responde a un sticker para convertirlo en imagen.');
         }
 
         try {
