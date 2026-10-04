@@ -281,6 +281,7 @@ const normalizeStickerlyResults = (raw) => {
         .map((item) => {
             const preview =
                 item?.preview ||
+                item?.thumbnailUrl ||
                 item?.thumbnail ||
                 item?.thumb ||
                 item?.image ||
