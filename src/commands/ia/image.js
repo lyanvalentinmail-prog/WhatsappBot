@@ -8,10 +8,7 @@
  * un "Art style" (ej: "No style", "Painted anime").
  *
  * Requiere una cuenta gratuita (sin tarjeta) en https://huggingface.co y
- * un token en HUGGINGFACE_API_KEY (.env). Antes se intentó usar Perchance
- * directamente, pero agregó protección anti-bot (Cloudflare Turnstile)
- * que exige resolver un captcha con navegador real, incompatible con
- * este proyecto (sin Selenium/Puppeteer/Playwright).
+ * un token en HUGGINGFACE_API_KEY (.env).
  * -----------------------------------------------------------------------
  */
 

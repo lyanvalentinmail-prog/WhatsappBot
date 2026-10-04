@@ -71,7 +71,7 @@ export const messages = {
     aiNotConfigured: (service) =>
         `⚠️ Configura la variable ${service} en tu archivo .env para usar este comando.`,
 
-    // .image (Perchance)
+    // .image (Hugging Face)
     imageUsage: (prefix, stylesList) =>
         `${symbols.error} Describe la imagen a generar.\n` +
         `Uso: \`${prefix}image <descripción> | <estilo>\`\n` +

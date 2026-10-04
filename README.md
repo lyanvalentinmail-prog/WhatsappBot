@@ -351,14 +351,6 @@ Digital Painting y Concept Art. Se pueden escribir en minúsculas, con o
 sin tildes/guiones (ej: `anime`, `Painted Anime` y `painted-anime` son
 equivalentes).
 
-> 🧭 **Nota sobre Perchance:** originalmente se evaluó usar
-> `perchance.org/ai-text-to-image-generator` (sin ninguna API key), pero
-> Perchance agregó protección anti-bot (Cloudflare Turnstile) a sus
-> endpoints: generar una imagen ahí ahora exige resolver un captcha con
-> un navegador real, algo incompatible con este proyecto (nada de
-> Selenium/Puppeteer/Playwright). Por eso `.image` usa Hugging Face, que
-> tiene una API HTTP real y documentada, con una capa gratuita genuina.
-
 El modelo usado se puede cambiar sin tocar código con
 `HUGGINGFACE_IMAGE_MODEL` en `.env` (cualquier modelo de
 "text-to-image" público del Hub de Hugging Face).

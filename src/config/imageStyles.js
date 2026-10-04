@@ -1,10 +1,9 @@
 /**
  * src/config/imageStyles.js
  * -----------------------------------------------------------------------
- * Catálogo de "Art styles" para el comando .image. Son los mismos nombres
- * que usa el dropdown "Art Style" de https://perchance.org (No style,
- * Painted Anime, Cinematic, etc.), traducidos a texto adicional que se le
- * suma al prompt (y al prompt negativo) para lograr ese look. Funcionan
+ * Catálogo de "Art styles" para el comando .image (No style, Painted
+ * Anime, Cinematic, etc.), cada uno traducido a texto adicional que se le
+ * suma al prompt (y al prompt negativo) para lograr ese look. Funciona
  * con cualquier backend de generación de imágenes (actualmente Hugging
  * Face, ver src/utils/api.js -> generateImageHuggingFace).
  *
