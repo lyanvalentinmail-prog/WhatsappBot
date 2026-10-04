@@ -41,11 +41,16 @@ const stickerCommand = {
             return ctx.reply(messages.needQuotedOrMedia);
         }
 
-        await ctx.reply(messages.processingSticker);
+        // En vez de mandar un mensaje de texto "Creando sticker...", se
+        // reacciona al mensaje original con un emoji (menos intrusivo).
+        await ctx.react('⏳️');
 
         try {
             const buffer = await downloadMedia(ctx.msg);
-            if (!buffer) return ctx.reply(messages.stickerError);
+            if (!buffer) {
+                await ctx.react('❌️');
+                return ctx.reply(messages.stickerError);
+            }
 
             const isVideo = type === 'videoMessage';
             const webp = await bufferToSticker(buffer, isVideo);
@@ -55,7 +60,9 @@ const stickerCommand = {
             });
 
             await ctx.sock.sendMessage(ctx.from, { sticker: final }, { quoted: ctx.msg });
+            await ctx.react('✅️');
         } catch (err) {
+            await ctx.react('❌️');
             await ctx.reply(messages.stickerError);
         }
     }
@@ -78,9 +85,14 @@ const toImgCommand = {
             return ctx.reply('❌️ Responde a un sticker para convertirlo en imagen.');
         }
 
+        await ctx.react('⏳️');
+
         try {
             const buffer = await downloadMedia(ctx.msg);
-            if (!buffer) return ctx.reply(messages.error);
+            if (!buffer) {
+                await ctx.react('❌️');
+                return ctx.reply(messages.error);
+            }
 
             const inputPath = saveTempFile(buffer, 'stickers', 'webp');
             const outputPath = inputPath.replace('.webp', '.png');
@@ -89,10 +101,12 @@ const toImgCommand = {
             const imageBuffer = fs.readFileSync(outputPath);
 
             await ctx.sock.sendMessage(ctx.from, { image: imageBuffer }, { quoted: ctx.msg });
+            await ctx.react('✅️');
 
             safeUnlink(inputPath);
             safeUnlink(outputPath);
         } catch (err) {
+            await ctx.react('❌️');
             await ctx.reply(messages.commandError(err.message || err));
         }
     }
