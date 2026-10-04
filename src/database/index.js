@@ -109,6 +109,26 @@ export const unblockUser = (jid) => {
     persist();
 };
 
+/* --------------------------- METADATOS DE STICKER ------------------------- */
+// Pack/autor por defecto que cada usuario puede configurar (.setmeta) para
+// que se usen automáticamente al crear stickers con .sticker, sin tener
+// que escribirlos cada vez.
+
+export const getStickerMeta = (jid) => data.stickerMeta[jid] || { pack: '', author: '' };
+
+export const setStickerMeta = (jid, { pack = '', author = '' } = {}) => {
+    data.stickerMeta[jid] = { pack, author };
+    persist();
+    return data.stickerMeta[jid];
+};
+
+export const clearStickerMeta = (jid) => {
+    const had = Boolean(data.stickerMeta[jid]?.pack || data.stickerMeta[jid]?.author);
+    delete data.stickerMeta[jid];
+    persist();
+    return had;
+};
+
 /* ------------------------------ CONFIGURACIÓN ----------------------------- */
 
 export const getSetting = (key, fallback = null) =>
@@ -135,6 +155,9 @@ export default {
     isBlocked,
     blockUser,
     unblockUser,
+    getStickerMeta,
+    setStickerMeta,
+    clearStickerMeta,
     getSetting,
     setSetting,
     getRawData

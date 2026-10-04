@@ -14,6 +14,7 @@ import messages from '../config/messages.js';
 import config from '../../config.js';
 import { getMessageType, getQuotedMessage, downloadMedia } from '../utils/formatter.js';
 import { bufferToSticker, addStickerMetadata, saveTempFile, safeUnlink } from '../utils/downloader.js';
+import { getStickerMeta } from '../database/index.js';
 
 const runFfmpeg = (args) =>
     new Promise((resolve, reject) => {
@@ -63,7 +64,15 @@ const stickerCommand = {
                 return ctx.reply(messages.stickerError);
             }
 
-            const { pack, author } = parsePackAuthor(ctx.args.join(' '));
+            let { pack, author } = parsePackAuthor(ctx.args.join(' '));
+
+            // Si no se indicó pack/autor en el comando, usamos el que el
+            // usuario haya guardado con .setmeta (si tiene uno guardado).
+            if (!pack && !author) {
+                const saved = getStickerMeta(ctx.sender);
+                pack = saved.pack || '';
+                author = saved.author || '';
+            }
 
             const isVideo = type === 'videoMessage';
             const webp = await bufferToSticker(buffer, isVideo);

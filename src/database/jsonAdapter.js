@@ -23,7 +23,8 @@ const DEFAULT_DATA = {
     groups: {},
     warnings: {},
     blocked: {},
-    settings: {}
+    settings: {},
+    stickerMeta: {}
 };
 
 const ensureFile = () => {

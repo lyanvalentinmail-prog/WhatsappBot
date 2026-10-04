@@ -393,8 +393,16 @@ claramente al usuario en vez de fallar en silencio.
 ## 🖼️ Stickers
 
 - `.sticker` o `.s` respondiendo a una imagen o video corto → crea un
-  sticker (usa FFmpeg internamente).
+  sticker (usa FFmpeg internamente). Admite indicar pack/autor al vuelo:
+  `.sticker Mi Pack|Mi Autor`.
 - `.toimg` respondiendo a un sticker → lo convierte de vuelta en imagen.
+- `.brat <texto>` → genera un sticker estilo BRAT (100% local, sin APIs).
+- `.ssearch <búsqueda>` → busca y envía un sticker de Sticker.ly.
+- `.setmeta <Pack>|<Autor>` → guarda un pack/autor por defecto para tus
+  próximos stickers (no hace falta volver a escribirlos cada vez).
+  También acepta `.setmeta Pack` (solo pack) o `.setmeta |Autor` (solo
+  autor).
+- `.delmeta` → borra el pack/autor guardado con `.setmeta`.
 
 Requiere tener `ffmpeg` instalado (`pkg install ffmpeg` en Termux).
 

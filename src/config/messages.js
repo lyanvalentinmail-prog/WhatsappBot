@@ -68,6 +68,19 @@ export const messages = {
     processingSticker: `${symbols.wait} Creando sticker...`,
     stickerError: `${symbols.error} No se pudo crear el sticker. Asegúrate de responder a una imagen o video corto.`,
     downloadNotConfigured: `⚠️ Esta función necesita que configures DOWNLOAD_API_URL en tu archivo .env.`,
+
+    // .setmeta / .delmeta (metadatos por defecto de stickers)
+    setMetaUsage: (prefix) =>
+        `❌️ Formato inválido. Usos posibles:\n` +
+        `> *${prefix}setmeta Pack*\n` +
+        `> *${prefix}setmeta Pack|Autor*\n` +
+        `> *${prefix}setmeta |Autor*`,
+    setMetaPackOnly: (pack) => `${symbols.success} A partir de ahora tus stickers usarán:\n> Pack: *${pack}*`,
+    setMetaAuthorOnly: (author) => `${symbols.success} A partir de ahora tus stickers usarán:\n> Autor: *${author}*`,
+    setMetaBoth: (pack, author) =>
+        `${symbols.success} A partir de ahora tus stickers usarán:\n> Pack: *${pack}*\n> Autor: *${author}*`,
+    delMetaEmpty: `❌️ No tienes metadatos de sticker guardados.`,
+    delMetaSuccess: `${symbols.success} Se eliminaron tus metadatos de sticker guardados. Tus stickers volverán a usar los valores por defecto del bot.`,
     aiNotConfigured: (service) =>
         `⚠️ Configura la variable ${service} en tu archivo .env para usar este comando.`,
 
