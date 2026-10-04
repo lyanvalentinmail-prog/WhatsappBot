@@ -24,12 +24,23 @@ const runFfmpeg = (args) =>
         proc.on('close', (code) => (code === 0 ? resolve() : reject(new Error(stderr.slice(-400)))));
     });
 
+/**
+ * Permite personalizar el nombre del pack y el autor del sticker
+ * escribiendo ".sticker Mi Pack|Mi Autor" (separador "|", "/" o "•").
+ * Si no se indica nada, se usan los valores por defecto del bot.
+ */
+const parsePackAuthor = (argsText) => {
+    if (!argsText) return {};
+    const [pack, author] = argsText.split(/[|/\\•]/).map((s) => s?.trim());
+    return { pack: pack || '', author: author || '' };
+};
+
 const stickerCommand = {
     name: 'sticker',
     aliases: ['s', 'stiker'],
-    category: 'herramientas',
+    category: 'stickers',
     description: 'Convierte una imagen o video corto en un sticker',
-    usage: '.sticker (respondiendo a una imagen/video)',
+    usage: '.sticker (respondiendo a una imagen/video, opcionalmente: Pack|Autor)',
     groupOnly: false,
     ownerOnly: false,
     async execute(ctx) {
@@ -52,11 +63,13 @@ const stickerCommand = {
                 return ctx.reply(messages.stickerError);
             }
 
+            const { pack, author } = parsePackAuthor(ctx.args.join(' '));
+
             const isVideo = type === 'videoMessage';
             const webp = await bufferToSticker(buffer, isVideo);
             const final = await addStickerMetadata(webp, {
-                packname: config.botName,
-                author: config.botOwner
+                packname: pack || config.botName,
+                author: author || config.botOwner
             });
 
             await ctx.sock.sendMessage(ctx.from, { sticker: final }, { quoted: ctx.msg });
@@ -71,7 +84,7 @@ const stickerCommand = {
 const toImgCommand = {
     name: 'toimg',
     aliases: ['toimage', 'tomedia'],
-    category: 'herramientas',
+    category: 'stickers',
     description: 'Convierte un sticker en imagen',
     usage: '.toimg (respondiendo a un sticker)',
     groupOnly: false,

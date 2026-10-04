@@ -53,16 +53,22 @@ export const categories = {
         order: 6,
         description: 'Utilidades variadas para el día a día'
     },
+    stickers: {
+        label: 'Stickers',
+        emoji: '🏷️',
+        order: 7,
+        description: 'Crea y busca stickers'
+    },
     juegos: {
         label: 'Juegos',
         emoji: '🎮',
-        order: 7,
+        order: 8,
         description: 'Minijuegos para divertirte'
     },
     owner: {
         label: 'Propietario',
         emoji: '👑',
-        order: 8,
+        order: 9,
         description: 'Comandos exclusivos del propietario del bot'
     }
 };

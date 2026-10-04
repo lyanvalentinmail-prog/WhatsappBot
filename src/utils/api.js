@@ -246,6 +246,55 @@ export const askGroq = async (prompt) => {
 };
 
 /**
+ * Descarga cualquier URL como Buffer (imagen, preview, etc). Usada por
+ * .brat y .ssearch para traer el resultado de APIs externas.
+ * @param {string} url
+ * @param {number} [timeoutMs]
+ * @returns {Promise<Buffer>}
+ */
+export const fetchBuffer = async (url, timeoutMs = 30_000) => {
+    const { data } = await axios.get(url, {
+        responseType: 'arraybuffer',
+        timeout: timeoutMs,
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
+    });
+    return Buffer.from(data);
+};
+
+/**
+ * Genera una imagen con estilo "BRAT" (fondo liso + texto, estilo del
+ * álbum de Charli XCX) a partir de un texto, vía la API pública de
+ * delirius.online (gratuita, sin API key).
+ * @param {string} text
+ * @returns {Promise<Buffer>} PNG de la imagen generada
+ */
+export const fetchBratImage = async (text) => {
+    try {
+        return await fetchBuffer(apiEndpoints.delirius.brat(text));
+    } catch (err) {
+        throw new Error('No se pudo generar la imagen BRAT. Probá de nuevo en un rato.');
+    }
+};
+
+/**
+ * Busca stickers de Sticker.ly por nombre/tema, vía la API pública de
+ * delirius.online (gratuita, sin API key).
+ * @param {string} query
+ * @returns {Promise<Array<{name: string, preview: string, isAnimated?: boolean}>>}
+ */
+export const searchStickerly = async (query) => {
+    try {
+        const { data } = await axios.get(apiEndpoints.delirius.stickerlySearch(query), {
+            timeout: 15_000,
+            headers: { 'User-Agent': 'Mozilla/5.0 (Linux; Android 15) Chrome/120.0.0.0 Mobile Safari/537.36' }
+        });
+        return Array.isArray(data?.data) ? data.data : [];
+    } catch (err) {
+        throw new Error('No se pudo conectar con el buscador de stickers. Probá de nuevo en un rato.');
+    }
+};
+
+/**
  * Llama a una API externa de descargas configurada por el usuario en .env
  * (DOWNLOAD_API_URL). El bot no incluye ningún servicio de terceros
  * "hardcodeado": cada usuario conecta la API que prefiera siguiendo este
@@ -286,6 +335,10 @@ export default {
     generateImageOpenAI,
     askGemini,
     askGroq,
+    generateImageHuggingFace,
+    fetchBuffer,
+    fetchBratImage,
+    searchStickerly,
     fetchDownload,
     safeGet
 };

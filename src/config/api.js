@@ -27,6 +27,12 @@ export const apiEndpoints = {
         // IMPORTANTE: Hugging Face apagó api-inference.huggingface.co (dominio
         // retirado, ya no resuelve DNS) y movió todo a router.huggingface.co.
         image: (model) => `https://router.huggingface.co/hf-inference/models/${model}`
+    },
+    delirius: {
+        // API pública y gratuita (sin key) usada por .brat y .ssearch.
+        brat: (text) => `https://api.delirius.online/canvas/brat?text=${encodeURIComponent(text)}`,
+        stickerlySearch: (query) =>
+            `https://api.delirius.online/search/stickerly?query=${encodeURIComponent(query)}`
     }
 };
 
