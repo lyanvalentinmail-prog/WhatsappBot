@@ -1,0 +1,37 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno y credenciales
+.env
+
+# Sesiones de WhatsApp (Baileys)
+sessions/*
+!sessions/.gitkeep
+
+# Logs
+logs/*
+!logs/.gitkeep
+*.log
+
+# Base de datos local
+src/database/storage/*
+!src/database/storage/.gitkeep
+
+# Archivos multimedia temporales/generados
+media/images/*
+media/videos/*
+media/audio/*
+media/stickers/*
+!media/images/.gitkeep
+!media/videos/.gitkeep
+!media/audio/.gitkeep
+!media/stickers/.gitkeep
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Editor
+.vscode/
+.idea/
