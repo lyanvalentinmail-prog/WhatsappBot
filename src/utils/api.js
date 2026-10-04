@@ -262,21 +262,6 @@ export const fetchBuffer = async (url, timeoutMs = 30_000) => {
 };
 
 /**
- * Genera una imagen con estilo "BRAT" (fondo liso + texto, estilo del
- * álbum de Charli XCX) a partir de un texto, vía la API pública de
- * delirius.online (gratuita, sin API key).
- * @param {string} text
- * @returns {Promise<Buffer>} PNG de la imagen generada
- */
-export const fetchBratImage = async (text) => {
-    try {
-        return await fetchBuffer(apiEndpoints.delirius.brat(text));
-    } catch (err) {
-        throw new Error('No se pudo generar la imagen BRAT. Probá de nuevo en un rato.');
-    }
-};
-
-/**
  * Busca stickers de Sticker.ly por nombre/tema, vía la API pública de
  * delirius.online (gratuita, sin API key).
  * @param {string} query
@@ -285,12 +270,19 @@ export const fetchBratImage = async (text) => {
 export const searchStickerly = async (query) => {
     try {
         const { data } = await axios.get(apiEndpoints.delirius.stickerlySearch(query), {
-            timeout: 15_000,
+            timeout: 10_000,
             headers: { 'User-Agent': 'Mozilla/5.0 (Linux; Android 15) Chrome/120.0.0.0 Mobile Safari/537.36' }
         });
         return Array.isArray(data?.data) ? data.data : [];
     } catch (err) {
-        throw new Error('No se pudo conectar con el buscador de stickers. Probá de nuevo en un rato.');
+        // El buscador de Sticker.ly depende de un servicio público gratuito
+        // de terceros (delirius.online) que el bot no controla. Si está
+        // caído (timeout, 5xx, DNS, etc.) lo avisamos claro en vez de un
+        // error genérico de axios.
+        throw new Error(
+            'El buscador de stickers (servicio externo "delirius.online") no está disponible en este momento. ' +
+                'No depende del bot: probá de nuevo más tarde.'
+        );
     }
 };
 
@@ -337,7 +329,6 @@ export default {
     askGroq,
     generateImageHuggingFace,
     fetchBuffer,
-    fetchBratImage,
     searchStickerly,
     fetchDownload,
     safeGet

@@ -1,0 +1,12 @@
+DejaVu fonts (DejaVuSans-Bold.ttf)
+-----------------------------------
+Bundled here so that `.brat` can render text locally with FFmpeg without
+depending on whichever fonts (if any) happen to be installed on the
+device running the bot (important for Termux, which does not ship
+fonts by default).
+
+DejaVu fonts are built on top of the Bitstream Vera fonts and are
+released under a permissive free license that allows embedding,
+modification and redistribution (including commercial use), with
+attribution preserved. Full license text and font authors:
+https://dejavu-fonts.github.io/License.html

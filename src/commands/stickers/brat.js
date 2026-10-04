@@ -2,52 +2,52 @@
  * src/commands/stickers/brat.js
  * -----------------------------------------------------------------------
  * .brat — genera un sticker estilo "BRAT" (fondo liso + texto, inspirado
- * en el álbum de Charli XCX) a partir de un texto, usando la API pública
- * y gratuita de delirius.online. No requiere API key.
+ * en el álbum de Charli XCX) a partir de un texto.
  *
- * Basado en: https://github.com/Ryuzei-Ts/Raiden-WaBot/blob/main/commands/stickers/brat.ts
+ * La imagen se genera 100% LOCAL con FFmpeg (ver src/utils/bratImage.js):
+ * no depende de ninguna API externa, así que siempre funciona mientras
+ * tengas FFmpeg instalado (ya es un requisito del bot para los demás
+ * comandos de sticker).
  * -----------------------------------------------------------------------
  */
 
 import config from '../../../config.js';
 import messages from '../../config/messages.js';
-import { fetchBratImage } from '../../utils/api.js';
+import { generateBratImage } from '../../utils/bratImage.js';
 import { bufferToSticker, addStickerMetadata } from '../../utils/downloader.js';
 
-/** Igual que en .sticker: ".brat Hola mundo|Mi Pack|Mi Autor" (opcional) */
-const parsePackAuthor = (argsText) => {
-    if (!argsText) return {};
-    const parts = argsText.split(/[|/\\•]/).map((s) => s?.trim());
-    return { pack: parts[1] || '', author: parts[2] || '' };
-};
+const THEMES = ['green', 'white', 'black'];
 
 export default {
     name: 'brat',
     aliases: ['bratsticker'],
     category: 'stickers',
     description: 'Genera un sticker estilo BRAT con tu texto',
-    usage: '.brat <texto>',
+    usage: '.brat <texto> (opcional: | verde/blanco/negro)',
     args: 'texto',
     groupOnly: false,
     ownerOnly: false,
     async execute(ctx) {
         const fullText = ctx.args.join(' ').trim();
         if (!fullText) {
-            return ctx.reply(`❌️ ¿Qué texto quieres poner?\nEj: *${ctx.prefix}brat Hola mundo*`);
+            return ctx.reply(
+                `❌️ ¿Qué texto quieres poner?\nEj: *${ctx.prefix}brat Hola mundo*\n` +
+                    `Colores: *${ctx.prefix}brat Hola mundo | blanco*`
+            );
         }
 
-        // Solo el texto (antes del primer separador) se usa para la imagen.
-        const text = fullText.split(/[|/\\•]/)[0].trim();
-        const { pack, author } = parsePackAuthor(fullText);
+        const [text, colorArg] = fullText.split('|').map((s) => s?.trim());
+        const colorMap = { verde: 'green', blanco: 'white', negro: 'black' };
+        const theme = THEMES.includes(colorArg) ? colorArg : colorMap[colorArg?.toLowerCase()] || 'green';
 
         await ctx.react('⏳️');
 
         try {
-            const imageBuffer = await fetchBratImage(text);
+            const imageBuffer = await generateBratImage(text, { theme });
             const webp = await bufferToSticker(imageBuffer, false);
             const sticker = await addStickerMetadata(webp, {
-                packname: pack || config.botName,
-                author: author || config.botOwner
+                packname: config.botName,
+                author: config.botOwner
             });
 
             await ctx.sock.sendMessage(ctx.from, { sticker }, { quoted: ctx.msg });
